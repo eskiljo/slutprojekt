@@ -15,7 +15,15 @@ def get_forecast():
     response = requests.get(url, params=params)
     data = response.json()
     
-    print(data["hourly"])
+    #print(data["hourly"])
+    plt.plot(data["hourly"]["temperature_2m"], color = "red")
+    plt.plot(data["hourly"]["relative_humidity_2m"], color = "blue")
+    #detta är FEL, använd flera grafer och klistra sedan ihop dem till en stor png som användaren kollar på (alternativt en hemsida)
+    plt.xlabel("Temperature (red) and Humidity (blue)")
+    #plt.show()
+    plt.tight_layout()
+    plt.savefig("forecast.png")
+
 
 get_forecast()
 
