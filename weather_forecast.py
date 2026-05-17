@@ -10,26 +10,66 @@ forecast_info = "./forecast.txt"
 base_url = "https://api.open-meteo.com/v1/forecast"
 
 
-#lat, long, parameters, days
-def get_forecast(): 
-    with open("forecast.txt") as forecast_info:
-        text = json.load(forecast_info)
-        global data
-        if not text:
-            with open("forecast.txt", "w") as forecast_info:
-                url = "https://api.open-meteo.com/v1/forecast"
-                
-                params = {  "latitude": 59.33,
-                            "longitude": 18.07,
-                            "hourly": "temperature_2m,relative_humidity_2m",
-                            "daily": "temperature_2m_mean",
-                            "forecast_days": 5 #days
-                }
-                response = requests.get(url, params=params)
-                data = response.json()
-                forecast_info.write(json.dumps(data))
+
+def get_forecast(lat, long, parameters, days):
+    url = "https://api.open-meteo.com/v1/forecast"
+    global data
+
+    params = {}
+    params["latitude"] = lat
+    params["longitude"] = long
+    params["forecast_days"] = days
+    
+    parameter_keys = parameters.keys()
+
+    print(parameters)
+    print(parameter_keys)
+
+    for parameter in parameter_keys:
+        if "hourly" in parameter:
+            key = parameter.split("-")[1]
+            if params["hourly"]:
+                params["hourly"] += "," + key
+            else:
+                params["hourly"] = key
         else:
-            data = text
+            if params["daily"]:
+                params["daily"] += "," + parameter
+            else:
+                params["daily"] = parameter
+            #lägg till att systemet sparar vilka som hör ihop, så att grafen innehåller dem tillsammans 
+            
+
+
+
+    #params = {  "latitude": 59.33,
+    #    "longitude": 18.07,
+    #    "hourly": "temperature_2m,relative_humidity_2m",
+    #    "daily": "temperature_2m_mean",
+    #    "forecast_days": 5 #days
+    #}
+    response = requests.get(url, params=params)
+    data = response.json()
+
+
+    #with open("forecast.txt") as forecast_info:
+        #text = json.load(forecast_info)
+        #global data
+        #if not text:
+            #with open("forecast.txt", "w") as forecast_info:
+                #url = "https://api.open-meteo.com/v1/forecast"
+                
+                #params = {  "latitude": 59.33,
+                #            "longitude": 18.07,
+                #            "hourly": "temperature_2m,relative_humidity_2m",
+                #            "daily": "temperature_2m_mean",
+                #            "forecast_days": 5 #days
+               # }
+              #  response = requests.get(url, params=params)
+             #   data = response.json()
+           #     forecast_info.write(json.dumps(data))
+      #  else:
+      #      data = text
     #print(data)
 
 def get_geolocation(name):
@@ -80,7 +120,7 @@ def get_request():
     if position["city"]:
         coordinates = get_geolocation(position["city"])
         print(coordinates)
-        get_forecast(coordinates["results"]["latitude"], coordinates["results"]["longitude"], requested_data, request.form["forecast_days"])
+        get_forecast(coordinates["results"][0]["latitude"], coordinates["results"][0]["longitude"], requested_data, request.form["forecast_days"])
     elif position["lat"] and position["long"]:
         get_forecast(position["lat"], position["long"], requested_data, request.form["forecast_days"])
     else:
