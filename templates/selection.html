@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Forecast Site</title>
+</head>
+<body>
+    <h2>Select city or coordinates for forecast</h2>
+    <form method="POST" action="/request_form">
+        <input type="text" name="city" placeholder="City: ">
+        <p> Or </p>
+        <input type="text" name="lat" placeholder="Latitude: ">
+        <input type="text" name="long" placeholder="Longitude: ">
+        <br>
+        <label>How many days should the forecast be?</label>
+        <input type="text" name="forecast_days">
+        <br>
+
+        <h2>Select parameters for forecast</h2> 
+        <div id="requested_info">
+            <label>Average temperature</label>
+            <input type="checkbox" name="temperature_2m_max,temperature_2m_mean,temperature_2m_min"><br>
+            <label>Humidity</label>
+            <input type="checkbox" name="hourly-relative_humidity_2m"><br>
+            <label>Chance of rain</label>
+            <input type="checkbox" name="precipitation_probability_max,precipitation_probability_mean,precipitation_probability_min"><br>
+            <label>Sum of rain and snow</label>
+            <input type="checkbox" name="rain_sum,snowfall_sum"><br>
+            <label>Time of sunrise and sunset</label>
+            <input type="checkbox" name="sunrise,sunset"><br>
+            <label>Maximum windspeed</label>
+            <input type="checkbox" name="wind_speed_10m_max"><br>
+            <label>Wind direction</label>
+            <input type="checkbox" name="wind_direction_10m_dominant"><br>
+            <label>Maximum UV-index</label>
+            <input type="checkbox" name="uv_index_max"><br>
+            <label>Air pressure</label>
+            <input type="checkbox" name="pressure_msl,surface_pressure"><br>
+
+        </div>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
