@@ -22,26 +22,31 @@ def get_forecast(lat, long, parameters, days):
     
     parameter_keys = parameters.keys()
 
-    print(parameters)
-    print(parameter_keys)
+    joint_params = []
+
+    #print(parameters)
+    #print(parameter_keys)
 
     for parameter in parameter_keys:
-        if "hourly" in parameter:
+        if parameter == "forecast_days":
+            pass
+        elif "hourly" in parameter:
             key = parameter.split("-")[1]
-            if params["hourly"]:
+            if params.get("hourly"):
                 params["hourly"] += "," + key
             else:
                 params["hourly"] = key
         else:
-            if params["daily"]:
+            if params.get("daily"):
                 params["daily"] += "," + parameter
             else:
                 params["daily"] = parameter
-            #lägg till att systemet sparar vilka som hör ihop, så att grafen innehåller dem tillsammans 
+        if "," in parameter:
+            #Adds parameters that were meant to be displayed in the same graph to a list
+            joint_params.append(parameter) 
+    #print(params)
             
-
-
-
+        
     #params = {  "latitude": 59.33,
     #    "longitude": 18.07,
     #    "hourly": "temperature_2m,relative_humidity_2m",
@@ -50,7 +55,8 @@ def get_forecast(lat, long, parameters, days):
     #}
     response = requests.get(url, params=params)
     data = response.json()
-
+    #print(data)
+    queue_plot_graphs(data, joint_params)
 
     #with open("forecast.txt") as forecast_info:
         #text = json.load(forecast_info)
@@ -86,7 +92,48 @@ def get_geolocation(name):
     return geolocation_data
 
 
-def plot_graphs():
+def queue_plot_graphs(data, joint_params):
+    if data.get("hourly"):
+        hourly = data["hourly"]
+    else:
+        hourly = []
+    
+    if data.get("daily"):
+        daily = data["daily"]
+    else:
+        daily = []
+    if joint_params:
+        for joint in joint_params:
+            joint_plot = []
+            for param_ in joint:
+                if param_ in daily:
+                    joint_plot.append(param_)
+                    if not daily["time"] in joint_plot:
+                        joint_plot.append(daily["time"])
+                    daily.remove(param_)
+                elif param_ in hourly:
+                    joint_plot.append(param_)
+                    if not hourly["time"] in joint_plot:
+                        joint_plot.append(hourly["time"])
+                    hourly.remove(param_)
+            plot_graph(joint_plot)
+
+
+    for item in daily:
+        if item.key() != "time":
+            plot_graph([item, daily["time"]])
+    for item in hourly:
+        if item.key() != "time":
+            plot_graph([item, hourly["time"]])
+
+
+
+def plot_graph(param_list):
+    parameters = param_list.remove("time")
+
+
+    plt.plot(param_list)
+
     #print(data["hourly"])
     plt.subplot(2, 1, 1)
     plt.plot(data["hourly"]["temperature_2m"], color = "red")
@@ -119,7 +166,7 @@ def get_request():
     #print(requested_data)
     if position["city"]:
         coordinates = get_geolocation(position["city"])
-        print(coordinates)
+        #print(coordinates)
         get_forecast(coordinates["results"][0]["latitude"], coordinates["results"][0]["longitude"], requested_data, request.form["forecast_days"])
     elif position["lat"] and position["long"]:
         get_forecast(position["lat"], position["long"], requested_data, request.form["forecast_days"])

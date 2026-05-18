@@ -1,1 +1,1 @@
-# flask
+THis project uses a weather API to show a forecast based on what the user requests in the web-page.
