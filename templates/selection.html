@@ -4,6 +4,7 @@
     <title>Weather Forecast Site</title>
 </head>
 <body>
+    <p>{{error}}</p>
     <h2>Select city or coordinates for forecast</h2>
     <form method="POST" action="/request_form">
         <input type="text" name="city" placeholder="City: ">
@@ -23,8 +24,10 @@
             <input type="checkbox" name="hourly-relative_humidity_2m"><br>
             <label>Chance of rain</label>
             <input type="checkbox" name="precipitation_probability_max,precipitation_probability_mean,precipitation_probability_min"><br>
-            <label>Sum of rain and snow</label>
-            <input type="checkbox" name="rain_sum,snowfall_sum"><br>
+            <label>Sum of rain</label>
+            <input type="checkbox" name="rain_sum"><br>
+            <label>Sum of snow</label>
+            <input type="checkbox" name="snowfall_sum"><br>
             <label>Time of sunrise and sunset</label>
             <input type="checkbox" name="sunrise,sunset"><br>
             <label>Maximum windspeed</label>
