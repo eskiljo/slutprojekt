@@ -102,21 +102,25 @@ def queue_plot_graphs(data, joint_params):
         daily = data["daily"]
     else:
         daily = []
-    if joint_params:
-        for joint in joint_params:
-            joint_plot = []
-            for param_ in joint:
-                if param_ in daily:
-                    joint_plot.append(param_)
-                    if not daily["time"] in joint_plot:
-                        joint_plot.append(daily["time"])
-                    daily.remove(param_)
-                elif param_ in hourly:
-                    joint_plot.append(param_)
-                    if not hourly["time"] in joint_plot:
-                        joint_plot.append(hourly["time"])
-                    hourly.remove(param_)
-            plot_graph(joint_plot)
+    
+
+    used = set()
+
+    for group in joint_params:
+        params = group.split(",")
+        graph = []
+
+        for param in params:
+            for section in data.values(): 
+                if isinstance(section, dict) and param in section: #if section is of type dict
+                    graph.append(section[param])
+                    if section["time"] not in graph:
+                        graph.append(section["time"])
+
+                    used.add(param)
+        if graph:
+            plot_graph(graph)
+
 
 
     for item in daily:
