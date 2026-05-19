@@ -119,7 +119,8 @@ def queue_plot_graphs(data, joint_params):
 
                     used.add(param)
         if graph:
-            plot_graph(graph)
+            #plot_graph(graph)
+            #print(graph)
 
 
 
