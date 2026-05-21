@@ -3,7 +3,10 @@ import json
 import os
 import matplotlib.pyplot as plt
 from flask import Flask, render_template, request
-from termcolor import colored
+from matplotlib.ticker import MaxNLocator
+from pathlib import Path
+import subprocess
+
 
 app = Flask(__name__)
 
@@ -16,9 +19,16 @@ def get_forecast(lat, long, parameters, days):
     url = "https://api.open-meteo.com/v1/forecast"
 
     params = {}
-    params["latitude"] = lat
-    params["longitude"] = long
-    params["forecast_days"] = days
+    if (-90 < lat < 90) and (-180 < long < 180):
+        params["latitude"] = lat
+        params["longitude"] = long
+    else:
+        return render_template("selection.html", error = "Error in coordinates")
+    
+    if days:
+        params["forecast_days"] = days
+    else:
+        return render_template("selection.html", error = "Error in requested forecast length")
     
     parameter_keys = parameters.keys()
 
@@ -58,10 +68,21 @@ def get_geolocation(name):
     }
     response = requests.get(search_url, params=params)
     geolocation_data = response.json()
-    return geolocation_data
+    if len(geolocation_data) < 2:
+        return False
+    else:
+        return geolocation_data
 
 
 def queue_plot_graphs(data, joint_params): 
+    subprocess.run("git clean -fd static", shell=True)
+    open("static/.gitkeep", "a").close()
+    subprocess.run(["git", "add", "static/"])
+    subprocess.run(["git", "commit", "-m", "Empty static folder (remove untracked files)"])
+    subprocess.run(["git", "push"])
+
+    #break
+
     if data.get("hourly"):
         hourly = data["hourly"]
     else:
@@ -151,20 +172,20 @@ def plot_graph(list, data, isdaily, ishourly):
             else:
                 title_text += thing[0]
         plt.title(title_text)
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(MaxNLocator(16))
+    plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
     global total_graphs
     total_graphs += 1
     plt.savefig("static/forecast" + str(total_graphs) + ".png")
 
 def send_images():
-    #print("SENT")
     images = []
     file_path = "static"
     for filename in os.listdir(file_path):
         images.append(filename)
-        #print(filename)
-    #print(images)
-    return render_template("weather.html", hello = images[0], images = images)
+    return render_template("weather.html", images = images)
 
 
 @app.route("/")
@@ -186,7 +207,7 @@ def get_request():
     if position["city"]:
         coordinates = get_geolocation(position["city"])
 
-        if coordinates["results"]:
+        if coordinates and coordinates["results"]:
             return get_forecast(coordinates["results"][0]["latitude"], coordinates["results"][0]["longitude"], requested_data, request.form["forecast_days"])
         else: 
             return render_template("selection.html", error = "Try again")

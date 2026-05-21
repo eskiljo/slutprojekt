@@ -5,12 +5,9 @@
 </head>
 <body>
     <h1>Results:</h1>
-    <img src="{{ url_for('static', filename=hello) }}">
-    <p> {{ hello }}</p>
-
     {% if images %}
         {% for image in images %}
-            <img src="{{ url_for('static', filename=image) }}">
+            <img src="{{ url_for('static', filename=image) }}" style="width:600px; height:auto;">
         {% endfor %}
     {% endif %}
 </body>

@@ -5,13 +5,14 @@
 </head>
 <body>
     <p>{{error}}</p>
+    <p>Note that the server sometimes gets stuck loading. In this case simply press sumbit until it works!</p>
     <h2>Select city or coordinates for forecast</h2>
     <form method="POST" action="/request_form">
         <input type="text" name="city" placeholder="City: ">
         <p> Or </p>
         <input type="text" name="lat" placeholder="Latitude: ">
         <input type="text" name="long" placeholder="Longitude: ">
-        <br>
+        <p></p>
         <label>How many days should the forecast be?</label>
         <input type="text" name="forecast_days">
         <br>
