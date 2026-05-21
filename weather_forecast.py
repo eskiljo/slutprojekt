@@ -1,5 +1,6 @@
 import requests
 import json
+import os
 import matplotlib.pyplot as plt
 from flask import Flask, render_template, request
 from termcolor import colored
@@ -43,8 +44,7 @@ def get_forecast(lat, long, parameters, days):
             
     response = requests.get(url, params=params)
     data = response.json()
-    print(data)
-    queue_plot_graphs(data, joint_params)
+    return queue_plot_graphs(data, joint_params)
 
 
 def get_geolocation(name):
@@ -65,13 +65,13 @@ def queue_plot_graphs(data, joint_params):
     if data.get("hourly"):
         hourly = data["hourly"]
     else:
-        print("NO HOURLY")
+        #print("NO HOURLY")
         hourly = []
     
     if data.get("daily"):
         daily = data["daily"]
     else:
-        print("NO DAILY")
+        #print("NO DAILY")
         daily = []
     
 
@@ -112,6 +112,7 @@ def queue_plot_graphs(data, joint_params):
             if i != "time":
                 if not i in used:
                     plot_graph([["time", hourly["time"]], [i, hourly[i]]], data, False, True)
+    return send_images()
 
 
 
@@ -153,7 +154,17 @@ def plot_graph(list, data, isdaily, ishourly):
     plt.tight_layout()
     global total_graphs
     total_graphs += 1
-    plt.savefig("forecast" + str(total_graphs) + ".png")
+    plt.savefig("static/forecast" + str(total_graphs) + ".png")
+
+def send_images():
+    #print("SENT")
+    images = []
+    file_path = "static"
+    for filename in os.listdir(file_path):
+        images.append(filename)
+        #print(filename)
+    #print(images)
+    return render_template("weather.html", hello = images[0], images = images)
 
 
 @app.route("/")
@@ -176,16 +187,16 @@ def get_request():
         coordinates = get_geolocation(position["city"])
 
         if coordinates["results"]:
-            get_forecast(coordinates["results"][0]["latitude"], coordinates["results"][0]["longitude"], requested_data, request.form["forecast_days"])
+            return get_forecast(coordinates["results"][0]["latitude"], coordinates["results"][0]["longitude"], requested_data, request.form["forecast_days"])
         else: 
-            render_template("selection.html", error = "Try again")
+            return render_template("selection.html", error = "Try again")
 
     elif position["lat"] and position["long"]:
-        get_forecast(position["lat"], position["long"], requested_data, request.form["forecast_days"])
+        return get_forecast(position["lat"], position["long"], requested_data, request.form["forecast_days"])
 
     else:
-        return render_template("selection.html", error = "")
-    return render_template("weather.html")
+        return render_template("selection.html", error = "Try again")
+    
 
 
 if __name__ == "__main__":
