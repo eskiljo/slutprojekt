@@ -27,7 +27,7 @@ def get_forecast(lat, long, parameters, days):
     
     if days:
         try:
-            if int(days) < 1 or int(days) > 16 or int(days) != isinstance(days, int):
+            if int(days) < 1 or int(days) > 16:
                 return render_template("selection.html", error = "Error in requested forecast length")
             else:
                 params["forecast_days"] = days
@@ -87,18 +87,14 @@ def queue_plot_graphs(data, joint_params):
     subprocess.run(["git", "commit", "-m", "Empty static folder (remove untracked files)"])
     subprocess.run(["git", "push"])
 
-    #break
-
     if data.get("hourly"):
         hourly = data["hourly"]
     else:
-        #print("NO HOURLY")
         hourly = []
     
     if data.get("daily"):
         daily = data["daily"]
     else:
-        #print("NO DAILY")
         daily = []
     
 
@@ -122,7 +118,7 @@ def queue_plot_graphs(data, joint_params):
                 ishourly = True
 
         if isdaily:
-            graph.append(["time",daily["time"]])
+            graph.append(["time", daily["time"]])
 
         elif ishourly:
             graph.append(["time", hourly["time"]])
@@ -149,7 +145,7 @@ def plot_graph(list, data, isdaily, ishourly):
     times = 0
     title = []
     title_text = ""
-
+    print(data)
 
     for item in list:
         if item[0] == "time":
@@ -167,10 +163,10 @@ def plot_graph(list, data, isdaily, ishourly):
             else:
                 plt.plot(time, item[1])
                 title.append([item[0], ""])
-        if isdaily:
-            plt.ylabel(data["daily_units"][item[0]])
-        elif ishourly:
-            plt.ylabel(data["hourly_units"][item[0]])
+            if isdaily:
+                plt.ylabel(data["daily_units"][item[0]])
+            elif ishourly:
+                plt.ylabel(data["hourly_units"][item[0]])
     if title:
         for thing in title:
             if thing[1]:
@@ -180,6 +176,7 @@ def plot_graph(list, data, isdaily, ishourly):
         plt.title(title_text)
     ax = plt.gca()
     ax.xaxis.set_major_locator(MaxNLocator(16))
+    ax.yaxis.set_major_locator(MaxNLocator(8))
     plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
     global total_graphs
