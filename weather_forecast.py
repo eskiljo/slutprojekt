@@ -184,7 +184,8 @@ def send_images():
     images = []
     file_path = "static"
     for filename in os.listdir(file_path):
-        images.append(filename)
+        if filename != ".gitkeep":
+            images.append(filename)
     return render_template("weather.html", images = images)
 
 
