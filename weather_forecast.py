@@ -26,7 +26,13 @@ def get_forecast(lat, long, parameters, days):
         return render_template("selection.html", error = "Error in coordinates")
     
     if days:
-        params["forecast_days"] = days
+        try:
+            if int(days) < 1 or int(days) > 16 or int(days) != isinstance(days, int):
+                return render_template("selection.html", error = "Error in requested forecast length")
+            else:
+                params["forecast_days"] = days
+        except:
+            return render_template("selection.html", error = "Error in requested forecast length")
     else:
         return render_template("selection.html", error = "Error in requested forecast length")
     
